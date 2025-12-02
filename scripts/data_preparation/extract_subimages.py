@@ -84,7 +84,7 @@ def extract_subimages(input_folder:str, save_folder: str, HR: bool):
     opt['input_folder'] = input_folder
     opt['save_folder'] = save_folder
     opt['n_thread'] = 20
-    opt['compression_level'] = 3
+    opt['compression_level'] = 1
     opt['crop_size'] = 480 if HR else 120
     opt['step'] = opt['crop_size'] // 2
     opt['thresh_size'] = 0
