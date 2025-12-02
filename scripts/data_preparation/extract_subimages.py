@@ -9,74 +9,88 @@ from tqdm import tqdm
 from basicsr.utils import scandir
 
 
-def main():
-    """A multi-thread tool to crop large images to sub-images for faster IO.
+# def main():
+#     """A multi-thread tool to crop large images to sub-images for faster IO.
 
-    It is used for DIV2K dataset.
+#     It is used for DIV2K dataset.
 
-    Args:
-        opt (dict): Configuration dict. It contains:
-        n_thread (int): Thread number.
-        compression_level (int):  CV_IMWRITE_PNG_COMPRESSION from 0 to 9. A higher value means a smaller size and
-            longer compression time. Use 0 for faster CPU decompression. Default: 3, same in cv2.
-        input_folder (str): Path to the input folder.
-        save_folder (str): Path to save folder.
-        crop_size (int): Crop size.
-        step (int): Step for overlapped sliding window.
-        thresh_size (int): Threshold size. Patches whose size is lower than thresh_size will be dropped.
+#     Args:
+#         opt (dict): Configuration dict. It contains:
+#         n_thread (int): Thread number.
+#         compression_level (int):  CV_IMWRITE_PNG_COMPRESSION from 0 to 9. A higher value means a smaller size and
+#             longer compression time. Use 0 for faster CPU decompression. Default: 3, same in cv2.
+#         input_folder (str): Path to the input folder.
+#         save_folder (str): Path to save folder.
+#         crop_size (int): Crop size.
+#         step (int): Step for overlapped sliding window.
+#         thresh_size (int): Threshold size. Patches whose size is lower than thresh_size will be dropped.
 
-    Usage:
-        For each folder, run this script.
-        Typically, there are four folders to be processed for DIV2K dataset.
+#     Usage:
+#         For each folder, run this script.
+#         Typically, there are four folders to be processed for DIV2K dataset.
 
-            * DIV2K_train_HR
-            * DIV2K_train_LR_bicubic/X2
-            * DIV2K_train_LR_bicubic/X3
-            * DIV2K_train_LR_bicubic/X4
+#             * DIV2K_train_HR
+#             * DIV2K_train_LR_bicubic/X2
+#             * DIV2K_train_LR_bicubic/X3
+#             * DIV2K_train_LR_bicubic/X4
 
-        After process, each sub_folder should have the same number of subimages.
+#         After process, each sub_folder should have the same number of subimages.
 
-        Remember to modify opt configurations according to your settings.
-    """
+#         Remember to modify opt configurations according to your settings.
+#     """
+
+    # opt = {}
+    # opt['n_thread'] = 20
+    # opt['compression_level'] = 3
+
+    # # HR images
+    # opt['input_folder'] = 'datasets/DIV2K/DIV2K_train_HR'
+    # opt['save_folder'] = 'datasets/DIV2K/DIV2K_train_HR_sub'
+    # opt['crop_size'] = 480
+    # opt['step'] = 240
+    # opt['thresh_size'] = 0
+    # extract_subimages(opt)
+
+    # # LRx2 images
+    # opt['input_folder'] = 'datasets/DIV2K/DIV2K_train_LR_bicubic/X2'
+    # opt['save_folder'] = 'datasets/DIV2K/DIV2K_train_LR_bicubic/X2_sub'
+    # opt['crop_size'] = 240
+    # opt['step'] = 120
+    # opt['thresh_size'] = 0
+    # extract_subimages(opt)
+
+    # # LRx3 images
+    # opt['input_folder'] = 'datasets/DIV2K/DIV2K_train_LR_bicubic/X3'
+    # opt['save_folder'] = 'datasets/DIV2K/DIV2K_train_LR_bicubic/X3_sub'
+    # opt['crop_size'] = 160
+    # opt['step'] = 80
+    # opt['thresh_size'] = 0
+    # extract_subimages(opt)
+
+    # # LRx4 images
+    # opt['input_folder'] = 'datasets/DIV2K/DIV2K_train_LR_bicubic/X4'
+    # opt['save_folder'] = 'datasets/DIV2K/DIV2K_train_LR_bicubic/X4_sub'
+    # opt['crop_size'] = 120
+    # opt['step'] = 60
+    # opt['thresh_size'] = 0
+    # extract_subimages(opt)
+
+
+def extract_subimages(input_folder:str, save_folder: str, HR: bool):
+
+
 
     opt = {}
+    opt['input_folder'] = input_folder
+    opt['save_folder'] = save_folder
     opt['n_thread'] = 20
     opt['compression_level'] = 3
-
-    # HR images
-    opt['input_folder'] = 'datasets/DIV2K/DIV2K_train_HR'
-    opt['save_folder'] = 'datasets/DIV2K/DIV2K_train_HR_sub'
-    opt['crop_size'] = 480
-    opt['step'] = 240
+    opt['crop_size'] = 480 if HR else 120
+    opt['step'] = opt['crop_size'] // 2
     opt['thresh_size'] = 0
-    extract_subimages(opt)
-
-    # LRx2 images
-    opt['input_folder'] = 'datasets/DIV2K/DIV2K_train_LR_bicubic/X2'
-    opt['save_folder'] = 'datasets/DIV2K/DIV2K_train_LR_bicubic/X2_sub'
-    opt['crop_size'] = 240
-    opt['step'] = 120
-    opt['thresh_size'] = 0
-    extract_subimages(opt)
-
-    # LRx3 images
-    opt['input_folder'] = 'datasets/DIV2K/DIV2K_train_LR_bicubic/X3'
-    opt['save_folder'] = 'datasets/DIV2K/DIV2K_train_LR_bicubic/X3_sub'
-    opt['crop_size'] = 160
-    opt['step'] = 80
-    opt['thresh_size'] = 0
-    extract_subimages(opt)
-
-    # LRx4 images
-    opt['input_folder'] = 'datasets/DIV2K/DIV2K_train_LR_bicubic/X4'
-    opt['save_folder'] = 'datasets/DIV2K/DIV2K_train_LR_bicubic/X4_sub'
-    opt['crop_size'] = 120
-    opt['step'] = 60
-    opt['thresh_size'] = 0
-    extract_subimages(opt)
 
 
-def extract_subimages(opt):
+
     """Crop images to subimages.
 
     Args:
@@ -150,7 +164,3 @@ def worker(path, opt):
                 [cv2.IMWRITE_PNG_COMPRESSION, opt['compression_level']])
     process_info = f'Processing {img_name} ...'
     return process_info
-
-
-if __name__ == '__main__':
-    main()

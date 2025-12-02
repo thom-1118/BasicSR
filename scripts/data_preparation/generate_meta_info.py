@@ -4,16 +4,16 @@ from PIL import Image
 from basicsr.utils import scandir
 
 
-def generate_meta_info_div2k():
+def generate_meta_info_div2k(gt_folder, meta_info_txt):
     """Generate meta info for DIV2K dataset.
     """
 
-    gt_folder = 'datasets/DIV2K/DIV2K_train_HR_sub/'
-    meta_info_txt = 'basicsr/data/meta_info/meta_info_DIV2K800sub_GT.txt'
+    # gt_folder = 'datasets/DIV2K/DIV2K_train_HR_sub/'
+    # meta_info_txt = 'basicsr/data/meta_info/meta_info_DIV2K800sub_GT.txt'
 
     img_list = sorted(list(scandir(gt_folder)))
 
-    with open(meta_info_txt, 'w') as f:
+    with open(meta_info_txt, 'a+') as f:
         for idx, img_path in enumerate(img_list):
             img = Image.open(osp.join(gt_folder, img_path))  # lazy load
             width, height = img.size
