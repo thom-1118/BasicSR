@@ -185,6 +185,34 @@ def train_pipeline(root_path):
                 logger.info('Saving models and training states.')
                 model.save(epoch, current_iter)
 
+                # from google.colab import files
+                import os
+                import shutil
+                import pathlib
+                # exper_path = "../../HAT_AST/experiments/train_HAT-S_SRx4_AST/"
+                exper_path = "HAT_AST/experiments/train_HAT-S_SRx4_AST/"
+                model_list = os.listdir(f"{exper_path}/models")
+                states_list = os.listdir(f"{exper_path}/training_states")
+
+                model_list.sort(key=lambda x: os.path.getmtime(f"{exper_path}/models/{x}"))
+                states_list.sort(key=lambda x: os.path.getmtime(f"{exper_path}/training_states/{x}"))
+
+                latest_model = f"{exper_path}/models/{model_list[-1]}"
+                latest_state = f"{exper_path}/training_states/{states_list[-1]}"
+
+                proj_path = "drive/MyDrive/y4/fall2025/cs 163/project"
+                if "currmodel.pth" in os.listdir(proj_path):
+                    pathlib.Path(f"{proj_path}/currmodel.pth").unlink()
+                if "currstate.state" in os.listdir(proj_path):
+                    pathlib.Path(f"{proj_path}/currstate.state").unlink()
+
+                shutil.copy(latest_model, f"{proj_path}/currmodel.pth")
+                shutil.copy(latest_state, f"{proj_path}/currstate.state")
+
+                logger.info('finished saving')
+
+
+
             # validation
             if opt.get('val') is not None and (current_iter % opt['val']['val_freq'] == 0):
                 if len(val_loaders) > 1:
