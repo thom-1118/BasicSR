@@ -218,8 +218,10 @@ def train_pipeline(root_path):
                 if len(val_loaders) > 1:
                     logger.warning('Multiple validation datasets are *only* supported by SRModel.')
 
+                logger.info('saving inters')
                 shutil.copy(f"{proj_path}/currmodel.pth", f"{proj_path}/inters/{current_iter}.pth")
                 shutil.copy(f"{proj_path}/currstate.state", f"{proj_path}/inters/{current_iter}.state")
+                logger.info('saved inters')
 
                 for val_loader in val_loaders:
                     model.validation(val_loader, current_iter, tb_logger, opt['val']['save_img'])
